@@ -17,8 +17,8 @@ def keypoint_detect_sift(image,sift):
 
 def iterate_image_pairs(name:str,image_dict:dict,size:int,detector_type,detector,matcher=None,matcher_type=None):
     for image_path in image_dict:
-        img_1 = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-        img_2 = cv2.imread(image_dict[image_path],cv2.IMREAD_GRAYSCALE)
+        img_1 = cv2.resize(cv2.imread(image_path, cv2.IMREAD_GRAYSCALE),(size,size))
+        img_2 = cv2.resize(cv2.imread(image_dict[image_path],cv2.IMREAD_GRAYSCALE),(size,size))
 
         match detector_type:
             case "ORB":
@@ -31,8 +31,8 @@ def iterate_image_pairs(name:str,image_dict:dict,size:int,detector_type,detector
                 
     
         # draw only keypoints location,not size and orientation
-        keypoints_img_1 = cv2.resize(cv2.drawKeypoints(img_1, keypoints_1, None, color=(0,255,0), flags=0),(size,size))
-        keypoints_img_2 = cv2.resize(cv2.drawKeypoints(img_2, keypoints_2, None, color=(0,255,0), flags=0),(size,size))
+        keypoints_img_1 = cv2.drawKeypoints(img_1, keypoints_1, None, color=(0,255,0), flags=0)
+        keypoints_img_2 = cv2.drawKeypoints(img_2, keypoints_2, None, color=(0,255,0), flags=0)
         
         # Match descriptors.
         draw_params=None
@@ -48,7 +48,10 @@ def iterate_image_pairs(name:str,image_dict:dict,size:int,detector_type,detector
         
         # For using Flann matcher
         elif matcher_type=="FLANN":
-            draw_params,matches =Flanned_Matcher(descriptors_1,descriptors_2) 
+            draw_params,matches,bad_matches =Flanned_Matcher(descriptors_1,descriptors_2) 
+            print(f"Match statistic for {image_path} and {image_dict[image_path]}")
+            print(f"Good matches: {len(matches)}")
+            print(f"Bad/non matches: {bad_matches}")
             img3 = cv2.drawMatchesKnn(keypoints_img_1,keypoints_1,keypoints_img_2,keypoints_2,matches,None,**draw_params)
             cv2.imshow(name,img3)
             cv2.waitKey(0)

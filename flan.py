@@ -15,13 +15,16 @@ def Flanned_Matcher(des1,des2,nndr=.8):
 
 	# selecting only good matches.
 	matchesMask = [[0,0] for i in range(len(matches))]
-
+	bad_matches=0
 	# ratio test.
 	for i,(m,n) in enumerate(matches):
 		if( m.distance < nndr*n.distance):
 			matchesMask[i]=[1,0]
+			continue
+		bad_matches+=1
+
 	draw_params = dict(matchColor = (0,255,0),
 					singlePointColor = (255,0,0),
 					matchesMask = matchesMask,flags = 0)
 	
-	return draw_params,matches
+	return draw_params,matches,bad_matches
